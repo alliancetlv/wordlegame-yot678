@@ -6,19 +6,36 @@
 
 // Leave this import as it is. You'll need it
 import assignmentfiles.*;
-
 public class GameEngine {
-
+    private String targetWord;
+    private int attemptsLeft;
+    private boolean isWin;
     public GameEngine(String targetWord) {
-        
+        this.targetWord = targetWord;
+        this.attemptsLeft = 6;
+        this.isWin = false;
     }
 
-    public String playGuess(String guess) {
-        return "-----";
-    }
+
+
 
     public static void main(String[] args) {
-        
+        WordLoader wordLoader = new WordLoader();
+        String word = wordLoader.getRandomWord();
+        GameEngine GE = new GameEngine(word);
+        GameUI gui = new GameUI();
+        System.out.println(word);
+        while (!GE.isGameOver()) {
+            String guess = gui.readUserGuess();
+            gui.displayResult(GE.playGuess(guess), guess, GE.getAttemptsLeft());
+        }
+        if(GE.isWin()){
+            gui.displayWin();
+        }else {
+            gui.displayLoss(word);
+        }
+
+
     }
 
     /**
@@ -33,19 +50,43 @@ public class GameEngine {
      * targetWord = "taper", guess = "water"
      * Returns: "-*+**"
      **/
-    public static String evaluateGuess(String targetWord, String guess) {
-        return "-----";
+    public static String evaluateGuess(String targetWord, String guess){
+        String endString = "";
+        for(int i = 0; i < guess.length(); i++) {
+            if (targetWord.indexOf(guess.charAt(i)) == -1) {
+                endString += '-';
+            } else if (guess.charAt(i) == targetWord.charAt(i)) {
+                endString += "*";
+            } else {
+                endString += "+";
+            }
+
+
+        }
+
+        return endString;
     }
 
     public boolean isGameOver() {
-        return false;
+        return this.attemptsLeft == 0 || this.isWin;
+    }
+    public String playGuess(String guess) {
+        this.attemptsLeft--;
+        String s = evaluateGuess(this.targetWord, guess);
+        if(s.indexOf('-') == -1 && s.indexOf('+') == -1 && s.length() == 5){
+            this.isWin = true;
+        }
+        return s;
     }
 
     public boolean isWin() {
-        return false;
+        return isWin;
+    }
+    public String getTargetWord(){
+        return this.targetWord;
     }
 
     public int getAttemptsLeft() {
-        return 0;
+        return this.attemptsLeft;
     }
 }
